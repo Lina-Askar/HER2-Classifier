@@ -199,7 +199,7 @@ Below are the actual app interfaces used in the system:
 
 ---
 
-# ⚙️ Backend (FastAPI)
+#  Backend (FastAPI)
 
 ### Install Dependencies
 ```bash
