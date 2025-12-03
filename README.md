@@ -1,4 +1,3 @@
-```md
 # 🎯 HER2-Classifier — Deep Learning–Based Algorithm for Automated HER2 Scoring
 
 This repository contains a complete deep-learning pipeline for **automated HER2 scoring** from breast-cancer histopathology images.
@@ -31,7 +30,6 @@ The system integrates:
 
 ## 📁 Repository Structure
 
-```text
 HER2-Classifier/
 │
 ├── backend/                      # FastAPI backend: PSPStain + IHCNet inference
@@ -54,10 +52,6 @@ HER2-Classifier/
 │   └── System Workflow.png
 │
 └── README.md
-```
-
----
-
 # 🧠 Models
 
 ## 1️⃣ IHCNet — HER2 Classifier
