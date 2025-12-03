@@ -1,4 +1,4 @@
-# 🎯 HER2-Classifier — Deep Learning–Based Algorithm for Automated HER2 Scoring
+#  HER2-Classifier — Deep Learning–Based Algorithm for Automated HER2 Scoring
 
 This repository contains a complete deep-learning pipeline for **automated HER2 scoring** from breast-cancer histopathology images.
 
@@ -13,7 +13,7 @@ The system integrates:
 
 ---
 
-## 🚀 Project Workflow
+##  Project Workflow
 
 1. **Input Image** (H&E or IHC)  
 2. If the image is **H&E**, generate **synthetic IHC** using PSPStain  
@@ -28,7 +28,7 @@ The system integrates:
 
 ---
 
-# 🧠 Models
+#  Models
 
 ## 1️⃣ IHCNet — HER2 Classifier
 
@@ -76,11 +76,11 @@ Some architecture references & visuals used in this repo are based on PSPStain +
 
 ---
 
-# 📊 Dataset (Kaggle)
+#  Dataset (Kaggle)
 
 We used one primary dataset for all experiments.
 
-## 📌 HER2 IHC Patch Dataset (Main Dataset)
+## HER2 IHC Patch Dataset (Main Dataset)
 
 Used for:
 
@@ -100,7 +100,7 @@ Includes labeled HER2 IHC patches: **0, 1+, 2+, 3+**
 
 ---
 
-# 🧹 Synthetic IHC Quality Filtering
+#  Synthetic IHC Quality Filtering
 
 Before merging synthetic IHC with real IHC for training, we applied strict filtering:
 
@@ -121,7 +121,7 @@ Reject images that are:
 ### 4️⃣ Label Mismatch Check  
 If predicted HER2 label ≠ original label → **reject**
 
-### 📉 Final:
+###  Final:
 - **Rejected:** 85.4%  
 - **Accepted:** 14.6% (high-quality only)
 
@@ -129,56 +129,59 @@ Used for IHCNet retraining.
 
 ---
 
-# 📈 Performance Summary
+# Performance Summary
 
-## ✅ Baseline IHCNet (Real IHC Only)
+##  Baseline IHCNet (Real IHC Only)
 - **Accuracy: 93.85%**  
 - Strong on classes **0, 2+, 3+**  
 - Class **1+** is the hardest (borderline)
 
-## ✅ Retrained IHCNet (Real + Synthetic IHC)
+##  Retrained IHCNet (Real + Synthetic IHC)
 - **Accuracy: 94%**  
 - Huge improvement in recall for **1+** and **2+**  
 - Lower overfitting → better generalization
 
-## ✅ PSPStain Evaluation (Synthetic Only)
+##  PSPStain Evaluation (Synthetic Only)
 - Accuracy ≈ **71.9%**  
 - Synthetic alone isn't perfect  
 - But after filtering → excellent augmentation
 
 ---
 
-# 📱 Flutter App – Screens
+#  Flutter App – Screens
 
 Below are the actual app interfaces used in the system:
 
-### 🔐 Login  
-![Login](UI-Screens/Login.png)
+---
 
-### ⬆️ Upload Image  
-![Upload](UI-Screens/Upload image.png)
+###  Login  
+![Login](UI-Screens/login.png)
 
-### ⚙️ Processing Page  
-![Processing](UI-Screens/Processing page.png)
+###  Upload Image  
+![Upload](UI-Screens/upload_image.png)
 
-### 📊 Classification Result  
-![Result](UI-Screens/Classification Result Page (Synthetic IHC).png)
+###  Processing Page  
+![Processing](UI-Screens/processing_page.png)
 
-### 📜 History  
-![History](UI-Screens/History page.png)
+###  Classification Result  
+![Result](UI-Screens/classification_result.png)
 
-### 🛠️ Admin Settings  
-![Admin](UI-Screens/Admin Settings Page.png)
+###  History  
+![History](UI-Screens/history_page.png)
 
-### 🚪 Logout  
-![Logout](UI-Screens/Logout.png)
+###  Admin Settings  
+![Admin](UI-Screens/admin_settings.png)
 
-### 🔄 Full System Workflow  
-![Workflow](UI-Screens/System Workflow.png)
+###  Logout  
+![Logout](UI-Screens/logout.png)
+
+###  Full System Workflow  
+![Workflow](UI-Screens/system_workflow.png)
+
 
 ---
 
-# 🔧 Implementation Requirements
+#  Implementation Requirements
 
 ## Software
 - Python 3.x  
@@ -220,7 +223,7 @@ Returns:
 
 ---
 
-## 👩‍💻 Project Team
+##  Project Team
 
 | Team Members |
 |--------------|
@@ -234,7 +237,7 @@ Returns:
 
 ---
 
-# 🔮 Future Work
+#  Future Work
 - Integrate **Vision Transformers (ViTs)**  
 - Expand from patch-based inference → **whole-slide analysis**  
 - Deploy a clinical-grade API  
@@ -242,7 +245,7 @@ Returns:
 
 ---
 
-# 🔒 License
+#  License
 This project is for academic and research use only.  
 Please cite **IHCNet**, **PSPStain**, and **this repository** if used.
 ```
