@@ -40,7 +40,7 @@ The system integrates:
   - Dropout  
 - **Training phases:**  
   1- Train on real IHC patches  
-  2= Retrain using real + high-quality synthetic IHC  
+  2- Retrain using real + high-quality synthetic IHC  
 
 ### 🔗 Original Implementation  
 https://github.com/Sakib-Hossain-Shovon/IHCNet  
