@@ -28,30 +28,6 @@ The system integrates:
 
 ---
 
-## 📁 Repository Structure
-
-HER2-Classifier/
-│
-├── backend/                      # FastAPI backend: PSPStain + IHCNet inference
-│   ├── FastAPI.py                # API + model pipeline
-│   ├── IHCNet.py                 # Training scripts
-│   ├── pspstain.py               # PSPStain evaluation + synthetic filtering
-│
-├── frontend/                     # Flutter mobile application
-│   ├── lib/screens/              # All UI screens Sidebar + shared components
-│   ├── lib/theme_provider.dart   # Admin mode + theming
-│
-├── UI-Screens/                   # Images displayed in this README
-│   ├── Login.png
-│   ├── Upload image.png
-│   ├── Processing page.png
-│   ├── Classification Result Page (Synthetic IHC).png
-│   ├── History page.png
-│   ├── Admin Settings Page.png
-│   ├── Logout.png
-│   └── System Workflow.png
-│
-└── README.md
 # 🧠 Models
 
 ## 1️⃣ IHCNet — HER2 Classifier
