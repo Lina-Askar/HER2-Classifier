@@ -30,7 +30,7 @@ The system integrates:
 
 #  Models
 
-## 1️⃣ IHCNet — HER2 Classifier
+## 1- IHCNet — HER2 Classifier
 
 - **Backbone:** DenseNet201  
 - **Classifier head:**  
@@ -39,13 +39,13 @@ The system integrates:
   - BatchNorm  
   - Dropout  
 - **Training phases:**  
-  1️⃣ Train on real IHC patches  
-  2️⃣ Retrain using real + high-quality synthetic IHC  
+  1- Train on real IHC patches  
+  2= Retrain using real + high-quality synthetic IHC  
 
 ### 🔗 Original Implementation  
 https://github.com/Sakib-Hossain-Shovon/IHCNet  
 
-### ✅ Our enhancements:
+###  Our enhancements:
 - Reimplemented IHCNet in **PyTorch**  
 - Added **Grad-CAM** hooks  
 - Added **Pseudo-color mapping**  
@@ -54,7 +54,7 @@ https://github.com/Sakib-Hossain-Shovon/IHCNet
 
 ---
 
-## 2️⃣ PSPStain — Virtual IHC Generator
+## 2- PSPStain — Virtual IHC Generator
 
 Translates **H&E patches → synthetic IHC patches**.
 
@@ -104,21 +104,21 @@ Includes labeled HER2 IHC patches: **0, 1+, 2+, 3+**
 
 Before merging synthetic IHC with real IHC for training, we applied strict filtering:
 
-### 1️⃣ Blur Check  
+### 1- Blur Check  
 - Laplacian variance  
 - If image is blurry → **reject**
 
-### 2️⃣ Brightness / Contrast Check  
+### 2- Brightness / Contrast Check  
 Reject images that are:
 - Too bright  
 - Too dark  
 - Low contrast  
 
-### 3️⃣ Confidence Check  
+### 3- Confidence Check  
 - Pass synthetic IHC → pretrained IHCNet  
 - If softmax confidence < **0.55** → **reject**
 
-### 4️⃣ Label Mismatch Check  
+### 4- Label Mismatch Check  
 If predicted HER2 label ≠ original label → **reject**
 
 ###  Final:
