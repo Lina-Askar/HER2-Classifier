@@ -1,241 +1,278 @@
-🎯 HER2-Classifier — Deep Learning–Based Algorithm for Automated HER2 Scoring
+```md
+# 🎯 HER2-Classifier — Deep Learning–Based Algorithm for Automated HER2 Scoring
 
-This repository contains a complete AI pipeline for automated HER2 scoring from breast cancer histopathology images.
+This repository contains a complete deep-learning pipeline for **automated HER2 scoring** from breast-cancer histopathology images.
 
 The system integrates:
 
-Virtual Staining (H&E → IHC) using PSPStain
+- **Virtual Staining (H&E → IHC)** using PSPStain  
+- **HER2 multi-class classification** using a modified DenseNet201 (IHCNet)  
+- **Synthetic IHC quality filtering** before retraining  
+- **Grad-CAM & pseudo-color visualizations**  
+- **FastAPI backend**  
+- **Flutter mobile application**
 
-HER2 multi-class classification using DenseNet201 (IHCNet)
+---
 
-Quality filtering for synthetic IHC
+## 🚀 Project Workflow
 
-Grad-CAM & Pseudo-color visualizations
+1. **Input Image** (H&E or IHC)  
+2. If the image is **H&E**, generate **synthetic IHC** using PSPStain  
+3. Feed the real/synthetic IHC patch into **IHCNet** → predicts HER2 class: **0, 1+, 2+, 3+**  
+4. Backend generates:
+   - HER2 score  
+   - Confidence probability  
+   - Grad-CAM heatmap  
+   - Pseudo-color visualization  
+   - Synthetic IHC (only if input was H&E)  
+5. Flutter app displays the results & stores them in History
 
-FastAPI backend
+---
 
-Flutter mobile application
+## 📁 Repository Structure
 
-🚀 Project Workflow
-<img src="https://github.com/Lina-Askar/HER2-Classifier/blob/main/UI-Screens/system_workflow.png" width="750">
-📁 Repository Structure
+```text
 HER2-Classifier/
 │
-├── backend/                # FastAPI backend — IHCNet + PSPStain inference
-├── frontend/               # Flutter mobile application
-├── UI-Screens/             # App UI images used in this README
-│   ├── login.png
-│   ├── upload_image.png
-│   ├── processing_page.png
-│   ├── classification_result.png
-│   ├── history_page.png
-│   ├── admin_settings.png
-│   ├── logout.png
-│   └── system_workflow.png
+├── backend/                      # FastAPI backend: PSPStain + IHCNet inference
+│   ├── FastAPI.py                # API + model pipeline
+│   ├── IHCNet.py                 # Training scripts
+│   ├── pspstain.py               # PSPStain evaluation + synthetic filtering
+│
+├── frontend/                     # Flutter mobile application
+│   ├── lib/screens/              # All UI screens Sidebar + shared components
+│   ├── lib/theme_provider.dart   # Admin mode + theming
+│
+├── UI-Screens/                   # Images displayed in this README
+│   ├── Login.png
+│   ├── Upload image.png
+│   ├── Processing page.png
+│   ├── Classification Result Page (Synthetic IHC).png
+│   ├── History page.png
+│   ├── Admin Settings Page.png
+│   ├── Logout.png
+│   └── System Workflow.png
+│
 └── README.md
+```
 
-🧠 Models
-1️⃣ IHCNet — HER2 Classifier
+---
 
-Backbone: DenseNet201
+# 🧠 Models
 
-Custom classifier: 512 → 256 → 4 classes
+## 1️⃣ IHCNet — HER2 Classifier
 
-Swish activation, BatchNorm, Dropout
+- **Backbone:** DenseNet201  
+- **Classifier head:**  
+  - 512 → 256 → 4 classes  
+  - Swish activation  
+  - BatchNorm  
+  - Dropout  
+- **Training phases:**  
+  1️⃣ Train on real IHC patches  
+  2️⃣ Retrain using real + high-quality synthetic IHC  
 
-Trained on:
+### 🔗 Original Implementation  
+https://github.com/Sakib-Hossain-Shovon/IHCNet  
 
-Real IHC patches
+### ✅ Our enhancements:
+- Reimplemented IHCNet in **PyTorch**  
+- Added **Grad-CAM** hooks  
+- Added **Pseudo-color mapping**  
+- Trained on our dataset → exported weights `.pth`  
+- Integrated everything into FastAPI
 
-Real + high-quality synthetic IHC patches (after filtering)
+---
 
-🔗 Original Implementation:
-https://github.com/Sakib-Hossain-Shovon/IHCNet
+## 2️⃣ PSPStain — Virtual IHC Generator
 
-✔️ Our Enhancements
+Translates **H&E patches → synthetic IHC patches**.
 
-Rebuilt the network in PyTorch
+### Model Architecture:
+- ResNet-based generator  
+- 6 residual blocks  
+- Instance Normalization  
+- Spectral Normalization  
+- Input: **256×256 H&E patch**  
+- Output: **256×256 synthetic IHC**
 
-Loaded our own trained .pth weights
+### 🔗 Original Implementation  
+https://github.com/ccitachi/PSPStain  
 
-Added Grad-CAM
+### Our PSPStain Workflow:
+H&E Patch → PSPStain Generator → Synthetic IHC → IHCNet → HER2 Score
 
-Added pseudo-color visualization
+Some architecture references & visuals used in this repo are based on PSPStain + our generated results.
 
-Integrated the classifier into FastAPI backend
+---
 
-2️⃣ PSPStain — Virtual IHC Generator
+# 📊 Dataset (Kaggle)
 
-Used to convert H&E → synthetic IHC.
+We used one primary dataset for all experiments.
 
-Model architecture:
-
-ResNet-based generator
-
-6 residual blocks
-
-InstanceNorm
-
-SpectralNorm
-
-🔗 Original Implementation:
-https://github.com/ccitachi/PSPStain
-
-✔️ Pipeline
-H&E patch (256×256)
-        ↓
-PSPStain ResNet Generator
-        ↓
-Synthetic IHC Patch
-        ↓
-IHCNet → HER2 Score
-
-📊 Dataset (Kaggle)
-
-We used one main dataset stored on Kaggle.
-
-📌 HER2 IHC Patch Dataset (Main Training Dataset)
+## 📌 HER2 IHC Patch Dataset (Main Dataset)
 
 Used for:
 
-Baseline IHCNet training
+- Baseline IHCNet training  
+- Evaluation  
+- Retraining with synthetic data  
 
-Evaluation
-
-Retraining after merging high-quality synthetic IHC
-
-Path in code:
-
+### Kaggle Path in Code:
+```
 DATASET_ROOT = "/kaggle/input/ihc-dataset"
+```
 
+### Dataset Link:
+https://www.kaggle.com/datasets/linaaskar/ihc-dataset  
 
-Dataset link:
-👉 https://www.kaggle.com/datasets/linaaskar/ihc-dataset
+Includes labeled HER2 IHC patches: **0, 1+, 2+, 3+**
 
-Labels included: 0, 1+, 2+, 3+
+---
 
-🧹 Synthetic IHC Quality Filtering
+# 🧹 Synthetic IHC Quality Filtering
 
-Before retraining IHCNet, a strict QC pipeline removed poor synthetic patches.
+Before merging synthetic IHC with real IHC for training, we applied strict filtering:
 
-Checks applied:
-1️⃣ Blur Check
+### 1️⃣ Blur Check  
+- Laplacian variance  
+- If image is blurry → **reject**
 
-Rejects images with low Laplacian variance.
+### 2️⃣ Brightness / Contrast Check  
+Reject images that are:
+- Too bright  
+- Too dark  
+- Low contrast  
 
-2️⃣ Brightness & Contrast Check
+### 3️⃣ Confidence Check  
+- Pass synthetic IHC → pretrained IHCNet  
+- If softmax confidence < **0.55** → **reject**
 
-Rejects images that are:
+### 4️⃣ Label Mismatch Check  
+If predicted HER2 label ≠ original label → **reject**
 
-Too bright
+### 📉 Final:
+- **Rejected:** 85.4%  
+- **Accepted:** 14.6% (high-quality only)
 
-Too dark
+Used for IHCNet retraining.
 
-Very low contrast
+---
 
-3️⃣ Confidence Check
+# 📈 Performance Summary
 
-If IHCNet confidence < 0.55 → reject.
+## ✅ Baseline IHCNet (Real IHC Only)
+- **Accuracy: 93.85%**  
+- Strong on classes **0, 2+, 3+**  
+- Class **1+** is the hardest (borderline)
 
-4️⃣ Label Mismatch
+## ✅ Retrained IHCNet (Real + Synthetic IHC)
+- **Accuracy: 94%**  
+- Huge improvement in recall for **1+** and **2+**  
+- Lower overfitting → better generalization
 
-If predicted HER2 class ≠ original H&E class → reject.
+## ✅ PSPStain Evaluation (Synthetic Only)
+- Accuracy ≈ **71.9%**  
+- Synthetic alone isn't perfect  
+- But after filtering → excellent augmentation
 
-📉 Filtering Result
-Category	Percentage
-Rejected	85.4%
-Accepted	14.6%
+---
 
-Only high-quality synthetic images were merged with real IHC for retraining.
+# 📱 Flutter App – Screens
 
-📈 Performance Summary
-Baseline IHCNet (Real IHC Only)
+Below are the actual app interfaces used in the system:
 
-Accuracy: 93.85%
+### 🔐 Login  
+![Login](UI-Screens/Login.png)
 
-Strong at 0, 2+, 3+
+### ⬆️ Upload Image  
+![Upload](UI-Screens/Upload image.png)
 
-Class 1+ remains hardest
+### ⚙️ Processing Page  
+![Processing](UI-Screens/Processing page.png)
 
-Retrained IHCNet (Real + Synthetic IHC)
+### 📊 Classification Result  
+![Result](UI-Screens/Classification Result Page (Synthetic IHC).png)
 
-Accuracy: >94%
+### 📜 History  
+![History](UI-Screens/History page.png)
 
-Major improvement for 1+ and 2+
+### 🛠️ Admin Settings  
+![Admin](UI-Screens/Admin Settings Page.png)
 
-Reduced overfitting
+### 🚪 Logout  
+![Logout](UI-Screens/Logout.png)
 
-Better generalization
+### 🔄 Full System Workflow  
+![Workflow](UI-Screens/System Workflow.png)
 
-PSPStain Evaluation (Synthetic Only)
+---
 
-Accuracy: ≈71.9%
-Synthetic images alone are not reliable
-→ but after filtering they become useful augmentation.
+# 🔧 Implementation Requirements
 
-📱 Flutter App — UI Preview
-🔐 Login Page
-<img src="https://github.com/Lina-Askar/HER2-Classifier/blob/main/UI-Screens/login.png" width="450">
-⬆️ Upload Image
-<img src="https://github.com/Lina-Askar/HER2-Classifier/blob/main/UI-Screens/upload_image.png" width="450">
-⚙️ Processing Page
-<img src="https://github.com/Lina-Askar/HER2-Classifier/blob/main/UI-Screens/processing_page.png" width="450">
-📊 Classification Result
-<img src="https://github.com/Lina-Askar/HER2-Classifier/blob/main/UI-Screens/classification_result.png" width="450">
-📜 History Page
-<img src="https://github.com/Lina-Askar/HER2-Classifier/blob/main/UI-Screens/history_page.png" width="450">
-🔧 Admin Settings
-<img src="https://github.com/Lina-Askar/HER2-Classifier/blob/main/UI-Screens/admin_settings.png" width="450">
-🚪 Logout
-<img src="https://github.com/Lina-Askar/HER2-Classifier/blob/main/UI-Screens/logout.png" width="450">
-🔧 Backend (FastAPI)
+## Software
+- Python 3.x  
+- Google Colab / Jupyter  
+- PyTorch  
+- OpenCV  
+- NumPy & SciPy  
+- FastAPI  
+- Flutter  
+- Grad-CAM Toolkit  
 
-Install:
+## Hardware
+- GPU-enabled environment  
+- Large storage for datasets  
 
+---
+
+# ⚙️ Backend (FastAPI)
+
+### Install Dependencies
+```bash
 pip install fastapi uvicorn torch torchvision opencv-python numpy pillow
+```
 
-
-Run server:
-
+### Run Server
+```bash
 uvicorn main:app --host 0.0.0.0 --port 8000
+```
 
-Endpoint
-
-POST /predict-her2
+### Main Endpoint
+`POST /predict-her2`
 
 Returns:
+- HER2 class  
+- Confidence  
+- Grad-CAM heatmap  
+- Pseudo-color visualization  
+- Synthetic IHC (if input was H&E)
 
-HER2 score
+---
 
-Confidence
+## 👩‍💻 Project Team
 
-Grad-CAM
+| Team Members |
+|--------------|
+| **Lina Askar** |
+| **Farah Basmaih** |
+| **Najla Almaghlouth** |
+| **Lama Alghofaili** |
+| **Kholoud Alkenani** |
+| **Supervisor: Dr. Najah Alsubaie** |
 
-Pseudo-color
 
-Synthetic IHC (if input was H&E)
+---
 
-👩‍💻 Project Team
-Member
-Lina Askar
-Farah Basmaih
-Najla Almaghlouth
-Lama Alghofaili
-Kholoud Alkenani
+# 🔮 Future Work
+- Integrate **Vision Transformers (ViTs)**  
+- Expand from patch-based inference → **whole-slide analysis**  
+- Deploy a clinical-grade API  
+- Multi-biomarker digital pathology  
 
-Supervisor: Dr. Najah Alsubaie
+---
 
-🔮 Future Work
-
-Vision Transformers (ViTs)
-
-Whole-slide image inference (WSI)
-
-Clinical deployment
-
-Multi-biomarker digital pathology
-
-🔒 License
-
-For academic and research use only.
-Please cite IHCNet, PSPStain, and this repository if used.
+# 🔒 License
+This project is for academic and research use only.  
+Please cite **IHCNet**, **PSPStain**, and **this repository** if used.
+```
