@@ -1,31 +1,24 @@
-# 🎯 HER2-Classifier — Deep Learning–Based Algorithm for Automated HER2 Scoring
+🎯 HER2-Classifier — Deep Learning–Based Algorithm for Automated HER2 Scoring
 
-This repository contains a complete AI pipeline for **automated HER2 scoring** from breast cancer histopathology images.
+This repository contains a complete AI pipeline for automated HER2 scoring from breast cancer histopathology images.
 
 The system integrates:
 
-- **Virtual Staining (H&E → IHC)** using a PSPStain ResNet-based generator  
-- **HER2 multi-class classification** using a modified DenseNet201 (IHCNet)  
-- **Quality filtering for synthetic IHC**  
-- **Grad-CAM & Pseudo-Color Visualizations**  
-- **FastAPI backend**  
-- **Flutter mobile application**
+Virtual Staining (H&E → IHC) using a PSPStain ResNet-based generator
 
----
+HER2 multi-class classification using a modified DenseNet201 (IHCNet)
 
-## 🚀 Project Workflow
+Quality filtering for synthetic IHC
 
-1. **Input Image (H&E or IHC)**  
-2. **Virtual IHC Generation** using PSPStain (if the input is H&E)  
-3. **HER2 Classification** using IHCNet → {0, 1+, 2+, 3+}  
-4. **Confidence Score + Grad-CAM + Pseudo-color map**  
-5. **Results displayed in Flutter application**  
+Grad-CAM & Pseudo-Color Visualizations
 
----
+FastAPI backend
 
-## 📁 Repository Structure
+Flutter mobile application
 
-```text
+🚀 Project Workflow
+
+📁 Repository Structure
 HER2-Classifier/
 │
 ├── backend/                # FastAPI backend, inference pipelines (IHCNet + PSPStain)
@@ -42,138 +35,167 @@ HER2-Classifier/
 │   ├── Logout.png
 │   └── System Workflow.png
 │
-└── README.md               # Project documentation
+└── README.md
+
 🧠 Models
 1️⃣ IHCNet — HER2 Classifier
-Backbone: DenseNet201, pretrained on ImageNet
 
-Custom classifier head: 512 → 256 → 4 classes with Swish activation, BatchNorm, Dropout
+Backbone: DenseNet201
 
-Trained first on real IHC patches, then retrained using real + high-quality synthetic IHC
+Custom classifier head: 512 → 256 → 4 classes
 
-Original implementation (we adapted from this repository):
-IHCNet original GitHub repo
+Swish activation, BatchNorm, Dropout
 
-In our code we:
+Trained on real IHC → then retrained using real + high-quality synthetic IHC
 
-Reimplemented the network in PyTorch
+🔗 Original Implementation:
+https://github.com/Sakib-Hossain-Shovon/IHCNet
 
-Loaded our own trained weights (.pth)
+Our enhancements:
 
-Integrated Grad-CAM and pseudo-color visualization for interpretability
+Rebuilt the network in PyTorch
+
+Loaded our own trained weights
+
+Added Grad-CAM
+
+Added pseudo-color visualization
+
+Integrated with FastAPI
 
 2️⃣ PSPStain — Virtual IHC Generator
-ResNet-based generator with:
 
-n_blocks = 6
+Used to convert H&E patches → synthetic IHC.
 
-n_downsampling = 2
+Model structure:
 
-instance normalization
+ResNet-based generator
 
-spectral weight normalization
+6 residual blocks
 
-Used to generate synthetic IHC from H&E patches before feeding them into IHCNet
+Instance Normalization
 
-Part of our figures and reference images follow the architecture and examples from the original PSPStain work.
+Spectral Normalization
 
-Original implementation (we adapted & reused generator weights):
-PSPStain original GitHub repo
+🔗 Original Implementation:
+https://github.com/ccitachi/PSPStain
 
-In our backend we:
+Our pipeline:
+H&E Patch (256×256)
+        ↓
+PSPStain ResNet Generator
+        ↓
+Synthetic IHC Patch
+        ↓
+IHCNet → HER2 Scoring
 
-Load the PSPStain generator as ResnetGenerator
+📊 Dataset (Kaggle)
 
-Pass 256×256 H&E patches through it → generate synthetic IHC
+We used one main dataset inside Google Colab:
 
-Then send the result to IHCNet for HER2 scoring
+📌 HER2 IHC Patch Dataset (Main Training Data)
 
-Some visual illustrations in this repository (e.g., synthetic H&E → IHC examples) are based on / inspired by the figures in the PSPStain repository and our own generated outputs.
-
-📊 Datasets (Kaggle)
-All datasets were accessed through Kaggle inside Google Colab.
-
-1️⃣ Real IHC Patch Dataset
-Used to train the baseline IHCNet (real IHC only).
-
-Kaggle path in code:
-
-python
-
-DATASET_ROOT = "/kaggle/input/ihc-dataset"
-Kaggle dataset :
-HER2 IHC Patch Dataset
-
-This dataset provides HER2-stained IHC patches labeled as 0, 1+, 2+, 3+ and was used for the initial training and evaluation of IHCNet.
-
-2️⃣ Paired H&E / IHC Dataset (BCI)
 Used for:
 
-Training the PSPStain virtual staining model
+Baseline training
 
-Generating synthetic IHC patches for retraining IHCNet
+Evaluation
 
-Kaggle path in code:
+Retraining after merging synthetic patches
 
-python
+Kaggle path inside code:
 
-DATASET_ROOT_BCI = "/kaggle/input/paired-labeled/BCI_dataset/IHC"
-Kaggle dataset (replace with your exact link):
-BCI Paired H&E–IHC Dataset
+DATASET_ROOT = "/kaggle/input/ihc-dataset"
 
-This dataset contains paired H&E and IHC images, which we cropped into 224×224 / 256×256 patches. Synthetic IHC generated from these H&E patches was later filtered and merged with the real IHC dataset for retraining.
+
+Dataset link:
+👉 https://www.kaggle.com/datasets/linaaskar/ihc-dataset
+
+Labels included: 0, 1+, 2+, 3+
 
 🧹 Synthetic IHC Quality Filtering
-Before retraining IHCNet with synthetic data, we applied a strict quality assessment pipeline:
 
-Blur check — Laplacian variance on the grayscale image
+To ensure the retraining dataset is reliable, we applied:
 
-Brightness / contrast check — reject too dark / too bright / low-contrast images
+🔍 1️⃣ Blur Check
 
-IHCNet confidence check
+Rejects images with low Laplacian variance.
 
-Pass the synthetic IHC through a pretrained IHCNet
+🔍 2️⃣ Brightness & Contrast Check
 
-If softmax confidence < 0.55 → reject
+Rejects synthetic images that are:
 
-Label mismatch check
+Too bright
 
-If predicted label ≠ original H&E label → reject
+Too dark
 
-As a result:
+Very low contrast
 
-85.4% of synthetic images were rejected
+🔍 3️⃣ Confidence Check
 
-Only the top-quality 14.6% were used for retraining IHCNet
+Pass synthetic IHC → pretrained IHCNet
+If confidence < 0.55 → reject
+
+🔍 4️⃣ Label Mismatch
+
+If predicted HER2 class ≠ original class → reject
+
+📉 Final Result
+
+Rejected: 85.4%
+
+Accepted: 14.6% (high-quality synthetic images)
+
+These were merged with real IHC patches for retraining.
 
 📈 Performance Summary
-Baseline IHCNet (Real IHC only)
-Test accuracy: 93.85%
+📌 Baseline IHCNet (Real IHC Only)
 
-High precision/recall for 0, 2+, 3+
+Accuracy: 93.85%
 
-1+ remains the most challenging class
+Very strong performance on 0, 2+, 3+
 
-Retrained IHCNet (Real + Synthetic IHC)
-Test accuracy: > 95%
+1+ class remains the most challenging
+
+📌 Retrained IHCNet (Real + Synthetic IHC)
+
+Accuracy: > 94%
 
 Improved recall for 1+ and 2+
 
-Overfitting gap reduced (train vs val accuracy closer)
+Overfitting significantly reduced
 
-More robust generalization across heterogeneous staining conditions
+Better generalization across staining variations
 
-PSPStain Evaluation (Synthetic IHC only)
-Directly classifying PSPStain images with IHCNet yielded ≈ 71.9% accuracy,
-confirming that synthetic images are useful but less reliable than real IHC.
+📌 PSPStain Evaluation (Synthetic Only)
 
-After filtering and retraining, synthetic samples acted as data augmentation rather than direct substitutes for real IHC.
+Accuracy ≈ 71.9%
+
+Confirms synthetic images alone are unreliable
+
+But AFTER filtering → synthetic data becomes powerful augmentation
+
+📱 Flutter App – UI Preview
+🔐 Login Page
+
+⬆️ Upload Image Page
+
+⚙️ Processing Page
+
+📊 Classification Result Page
+
+📜 History Page
+
+🔧 Admin Settings
+
+🚪 Logout
 
 🔧 Implementation Requirements
 Software
+
 Python 3.x
 
-Google Colab / Jupyter Notebook
+Colab / Jupyter Notebook
 
 PyTorch
 
@@ -181,82 +203,66 @@ OpenCV
 
 NumPy & SciPy
 
-Matplotlib & Seaborn
-
 Grad-CAM Toolkit
 
-FastAPI (API integration)
+FastAPI
 
-Flutter (application development)
+Flutter
 
 Hardware
-GPU-enabled environment (Colab / local GPU)
 
-Sufficient storage for large histopathology datasets
+GPU-enabled environment
+
+Large storage
 
 ⚙️ Backend (FastAPI)
-The backend exposes a REST API around the PSPStain generator + IHCNet classifier.
 
-1️⃣ Install requirements
-bash
+Install:
+
 pip install fastapi uvicorn torch torchvision opencv-python numpy pillow
-2️⃣ Run server
-bash
+
+
+Run server:
+
 uvicorn main:app --host 0.0.0.0 --port 8000
-3️⃣ Example endpoint
+
+
+Endpoint:
+
 POST /predict-her2
 
-Input: image (H&E or IHC)
 
-Output:
+Returns:
 
-predicted HER2 score (0/1+/2+/3+)
+HER2 score
 
-confidence
+Confidence
 
-Grad-CAM & pseudo-color maps (Base64)
+Grad-CAM
 
-synthetic IHC if input was H&E
+Pseudo-color
 
-Flutter calls this endpoint using the configured API link in the Admin Settings screen.
-
-📱 Frontend (Flutter App)
-Preview images are available in UI-Screens/:
-
-Login.png — secure login for doctors / admins
-
-Upload image.png — upload H&E or IHC (patch or WSI crop)
-
-Processing page.png — shows analysis in progress
-
-Classification Result Page (Synthetic IHC).png — HER2 score + confidence + visualizations
-
-History page.png — previous reports and analysis history
-
-Admin Settings Page.png — API URL, model (.pth) path, user management
-
-Logout.png — safe logout confirmation
-
-System Workflow.png — end-to-end overview of the pipeline
+Synthetic IHC
 
 👩‍💻 Project Team
 Name	
 Lina Askar
-Farah Basmaih	
-Najla Almaghlouth	
-Lama Alghofaili
-Kholoud Alkenani	
+Farah Basmaih
+Najla Almaghlouth
+Lama Alghofaili	
+Kholoud Alkenani
 Supervisor: Dr. Najah Alsubaie	
-
 🔮 Future Work
-Integrate Vision Transformers (ViTs) / hybrid CNN-Transformer models to better capture fine-grained membrane patterns, especially in borderline classes (1+ / 2+).
 
-Extend from patch-based inference to whole-slide analysis with tiling and slide-level aggregation.
+Vision Transformers (ViTs)
 
-Deploy a full clinical API for real-time HER2 scoring and visual explanation.
+Whole-slide image inference
 
-Combine additional biomarkers to build a comprehensive multi-modal digital pathology platform.
+Clinical deployment
+
+Multi-biomarker digital pathology
 
 🔒 License
-This project is provided for academic and research purposes only.
-Please cite the original IHCNet and PSPStain works, as well as this repository, if you use or extend this code.
+
+For academic use only.
+Please cite IHCNet, PSPStain, and this repository.
